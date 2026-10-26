@@ -1,0 +1,15 @@
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/ldtteam/BlockUI/version/1.20.1/src/main/resources/assets/blockui/gui/block_ui.xsd"
+    size="190 244">
+    <image source="minecolonies:textures/gui/builderhut/builder_paper.png" size="190 244"/>
+    <image source="minergy:textures/gui/minergy.png" size="16 16" pos="20 12"/>
+    <text size="130 11" pos="40 15" textalign="MIDDLE_LEFT" color="black"
+          label="$(com.minergy.gui.info.title)"/>
+    <box size="164 82" linewidth="1" pos="13 34">
+        <text id="amount" size="156 11" pos="4 6" color="black"/>
+        <text id="rate" size="156 11" pos="4 24" color="black"/>
+        <text id="construction" size="156 11" pos="4 42" color="black"/>
+        <text id="mode" size="156 11" pos="4 60" color="black"/>
+    </box>
+    <text size="164 100" pos="13 124" color="black" wrap="true"
+          label="$(com.minergy.gui.info.help)"/>
+</window>
