@@ -28,10 +28,10 @@ public final class MinergyConfig
 
         builder.comment("Minergy generation by the Mystical Mage, per second of work").push("generation");
         BASE_RATE = builder
-            .comment("Minergy per second of a beginner mage at Mystical Site level 1.")
+            .comment("Minergy per second of a beginner mage at Library level 1.")
             .defineInRange("baseRate", 4.0D, 0.0D, 1_000_000.0D);
         RATE_PER_LEVEL = builder
-            .comment("Additional Minergy per second for each Mystical Site level above 1.")
+            .comment("Additional Minergy per second for each Library level above 1.")
             .defineInRange("ratePerLevel", 3.0D, 0.0D, 1_000_000.0D);
         MAX_SKILL_BONUS = builder
             .comment("Bonus ratio granted by a mage with Mana 99 (0.25 = +25%). Scales linearly with the Mana skill.")
@@ -43,7 +43,7 @@ public final class MinergyConfig
 
         builder.comment("Minergy storage of a colony").push("storage");
         STORAGE_PER_LEVEL = builder
-            .comment("Maximum Minergy a colony can store, per level of its best Mystical Site. 0 = unlimited.")
+            .comment("Maximum Minergy a colony can store, per level of its best Library. 0 = unlimited.")
             .defineInRange("storagePerLevel", 100_000L, 0L, Long.MAX_VALUE);
         builder.pop();
 

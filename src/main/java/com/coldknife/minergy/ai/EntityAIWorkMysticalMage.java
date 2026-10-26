@@ -7,15 +7,15 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
-import com.minecolonies.core.colony.buildings.BuildingMysticalSite;
+import com.minecolonies.core.colony.buildings.workerbuildings.BuildingLibrary;
 import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIInteract;
+import com.minecolonies.core.entity.other.SittingEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.IDLE;
@@ -23,9 +23,9 @@ import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.S
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 
 /**
- * The Mystical Mage meditates at the Mystical Site and turns its concentration into Minergy, every second of work.
+ * The Mystical Mage sits down near a bookshelf of the Library and turns its concentration into Minergy, every second of work.
  */
-public class EntityAIWorkMysticalMage extends AbstractEntityAIInteract<JobMysticalMage, BuildingMysticalSite>
+public class EntityAIWorkMysticalMage extends AbstractEntityAIInteract<JobMysticalMage, BuildingLibrary>
 {
     /**
      * Skill level giving the full skill bonus.
@@ -33,12 +33,13 @@ public class EntityAIWorkMysticalMage extends AbstractEntityAIInteract<JobMystic
     private static final double MAX_SKILL = 99.0D;
 
     /**
-     * Seconds spent on a meditation spot before moving to another one.
+     * How long one sitting lasts; the mage sits down again on the same spot right after, without walking around.
+     * Kept short so that a mage called away (food, sleep, danger) does not stay seated for long.
      */
-    private static final int SECONDS_PER_SPOT = 30;
+    private static final int SITTING_SECONDS = 60;
 
     /**
-     * Max seconds spent trying to reach a meditation spot.
+     * Max seconds spent trying to reach the meditation spot.
      */
     private static final int MAX_WALK_SECONDS = 10;
 
@@ -68,10 +69,18 @@ public class EntityAIWorkMysticalMage extends AbstractEntityAIInteract<JobMystic
 
     private static final String DIALOGUE_FULL = "com.minergy.mage.dialogue.full";
 
-    private BlockPos meditationSpot  = null;
-    private int      walkSeconds     = 0;
-    private int      spotSeconds     = 0;
-    private int      secondsWorked   = 0;
+    /**
+     * Where the mage walks to before sitting down (a bookshelf of the Library).
+     */
+    private BlockPos walkTarget    = null;
+
+    /**
+     * Where the mage sits, kept for the whole work session so it does not wander.
+     */
+    private BlockPos seat          = null;
+
+    private int      walkSeconds   = 0;
+    private int      secondsWorked = 0;
 
     public EntityAIWorkMysticalMage(@NotNull final JobMysticalMage job)
     {
@@ -85,13 +94,13 @@ public class EntityAIWorkMysticalMage extends AbstractEntityAIInteract<JobMystic
     }
 
     @Override
-    public Class<BuildingMysticalSite> getExpectedBuildingClass()
+    public Class<BuildingLibrary> getExpectedBuildingClass()
     {
-        return BuildingMysticalSite.class;
+        return BuildingLibrary.class;
     }
 
     /**
-     * Minergy per second, from the site level and the mage's Mana.
+     * Minergy per second, from the Library level and the mage's Mana.
      */
     public static double computeRate(final int buildingLevel, final int manaLevel)
     {
@@ -106,45 +115,28 @@ public class EntityAIWorkMysticalMage extends AbstractEntityAIInteract<JobMystic
         {
             return getState();
         }
-        pickMeditationSpot();
-        return MageState.MEDITATE;
-    }
-
-    private void pickMeditationSpot()
-    {
-        final Tuple<BlockPos, BlockPos> corners = building.getCorners();
-        final BlockPos hut = building.getPosition();
-        if (corners == null)
-        {
-            meditationSpot = hut;
-        }
-        else
-        {
-            final BlockPos a = corners.getA();
-            final BlockPos b = corners.getB();
-            final int minX = Math.min(a.getX(), b.getX()) + 1;
-            final int maxX = Math.max(a.getX(), b.getX()) - 1;
-            final int minZ = Math.min(a.getZ(), b.getZ()) + 1;
-            final int maxZ = Math.max(a.getZ(), b.getZ()) - 1;
-            meditationSpot = maxX <= minX || maxZ <= minZ
-                               ? hut
-                               : new BlockPos(minX + worker.getRandom().nextInt(maxX - minX + 1), hut.getY(), minZ + worker.getRandom().nextInt(maxZ - minZ + 1));
-        }
+        walkTarget = building.getRandomBookShelf();
+        seat = null;
         walkSeconds = 0;
-        spotSeconds = 0;
+        return MageState.MEDITATE;
     }
 
     private IAIState meditate()
     {
-        if (meditationSpot == null)
+        if (seat == null)
         {
-            pickMeditationSpot();
+            if (!walkToWorkPos(walkTarget) && walkSeconds < MAX_WALK_SECONDS)
+            {
+                walkSeconds++;
+                return getState();
+            }
+            seat = worker.blockPosition();
         }
 
-        if (!walkToWorkPos(meditationSpot) && walkSeconds < MAX_WALK_SECONDS)
+        if (worker.getVehicle() == null)
         {
-            walkSeconds++;
-            return getState();
+            worker.getNavigation().stop();
+            SittingEntity.sitDown(seat, worker, SITTING_SECONDS * TICKS_SECOND);
         }
 
         final IColony colony = building.getColony();
@@ -153,7 +145,6 @@ public class EntityAIWorkMysticalMage extends AbstractEntityAIInteract<JobMystic
         MinergyManager.reportRate(colony, worker.getCitizenData().getId(), rate);
 
         worker.getCitizenExperienceHandler().addExperience(XP_PER_SECOND);
-        worker.getNavigation().stop();
         spawnParticles();
 
         secondsWorked++;
@@ -170,11 +161,6 @@ public class EntityAIWorkMysticalMage extends AbstractEntityAIInteract<JobMystic
             worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(line), ChatPriority.CHITCHAT));
         }
 
-        if (++spotSeconds >= SECONDS_PER_SPOT)
-        {
-            meditationSpot = null;
-            return START_WORKING;
-        }
         return getState();
     }
 
@@ -182,8 +168,8 @@ public class EntityAIWorkMysticalMage extends AbstractEntityAIInteract<JobMystic
     {
         if (world instanceof ServerLevel serverLevel)
         {
-            serverLevel.sendParticles(ParticleTypes.ENCHANT, worker.getX(), worker.getY() + 1.8D, worker.getZ(), 6, 0.6D, 0.4D, 0.6D, 0.4D);
-            serverLevel.sendParticles(ParticleTypes.WITCH, worker.getX(), worker.getY() + 1.0D, worker.getZ(), 1, 0.3D, 0.3D, 0.3D, 0.0D);
+            serverLevel.sendParticles(ParticleTypes.ENCHANT, worker.getX(), worker.getY() + 1.4D, worker.getZ(), 6, 0.6D, 0.4D, 0.6D, 0.4D);
+            serverLevel.sendParticles(ParticleTypes.WITCH, worker.getX(), worker.getY() + 0.8D, worker.getZ(), 1, 0.3D, 0.3D, 0.3D, 0.0D);
         }
     }
 }
