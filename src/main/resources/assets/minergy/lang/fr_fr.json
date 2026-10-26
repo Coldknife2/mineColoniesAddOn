@@ -1,0 +1,36 @@
+{
+  "com.minergy.job.mysticalmage": "Mage mystique",
+
+  "com.minecolonies.coremod.setting.minergy:construction": "Utiliser la Minergie pour construire",
+  "com.minecolonies.coremod.setting.tooltip.minergy:construction": "Les bâtisseurs peuvent dépenser de la Minergie pour poser les blocs qu'ils n'ont pas. Ces blocs ne droppent rien.",
+  "com.minecolonies.coremod.setting.minergy:constructionmode": "Mode de construction Minergie",
+  "com.minecolonies.coremod.setting.tooltip.minergy:constructionmode": "Secours : vrais blocs d'abord, Minergie s'ils manquent. D'abord : Minergie d'abord, vrais blocs quand elle est épuisée.",
+  "com.minergy.setting.mode.fallback": "Secours",
+  "com.minergy.setting.mode.first": "Minergie d'abord",
+
+  "com.minergy.gui.info.tab": "Minergie",
+  "com.minergy.gui.info.title": "Minergie de la colonie",
+  "com.minergy.gui.info.amount": "Réserve : %s / %s",
+  "com.minergy.gui.info.amount.unlimited": "Réserve : %s",
+  "com.minergy.gui.info.rate": "Génération : %s Minergie/s",
+  "com.minergy.gui.info.construction.on": "Construction : activée",
+  "com.minergy.gui.info.construction.off": "Construction : désactivée",
+  "com.minergy.gui.info.mode.fallback": "Mode : secours (vrais blocs d'abord)",
+  "com.minergy.gui.info.mode.first": "Mode : Minergie d'abord",
+  "com.minergy.gui.info.nodata": "En attente du rapport du mage...",
+  "com.minergy.gui.info.help": "Le Mage mystique transforme sa concentration en Minergie pendant son travail. 1 Minergie permet à un bâtisseur de poser 1 bloc. Un bloc posé avec la Minergie ne droppe rien une fois cassé. Le meilleur Mystical Site de la colonie porte les réglages.",
+
+  "com.minergy.hud.amount": "Minergie : %s",
+  "com.minergy.hud.mode.fallback": "Construction : secours",
+  "com.minergy.hud.mode.first": "Construction : Minergie d'abord",
+  "com.minergy.hud.disabled": "Construction : désactivée",
+  "com.minergy.hud.nodata": "Aucune donnée de colonie",
+
+  "com.minergy.mage.dialogue.flow": "Vous la sentez ? La Minergie coule en ce lieu comme une rivière tranquille.",
+  "com.minergy.mage.dialogue.stone": "Un bloc de Minergie ressemble à de la pierre, se touche comme de la pierre... mais ce n'est qu'une pensée devenue solide.",
+  "com.minergy.mage.dialogue.builders": "Dites aux bâtisseurs de ne pas s'inquiéter des blocs manquants. Je leur tisserai ce qu'il leur faut.",
+  "com.minergy.mage.dialogue.ephemeral": "Brisez un bloc de Minergie et il n'en reste rien. C'est le prix d'un tel don.",
+  "com.minergy.mage.dialogue.colony": "Cette Minergie est liée à notre colonie. Ailleurs, elle se dissiperait.",
+  "com.minergy.mage.dialogue.focus": "Chut... encore une respiration, encore un bloc pour la colonie.",
+  "com.minergy.mage.dialogue.full": "Le réceptacle déborde ! Les bâtisseurs devraient utiliser notre Minergie avant qu'elle ne se perde."
+}

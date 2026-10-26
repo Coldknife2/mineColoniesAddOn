@@ -1,0 +1,16 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "com.coldknife.minergy.mixin",
+    "compatibilityLevel": "JAVA_17",
+    "refmap": "minergy.refmap.json",
+    "mixins": [
+        "BlockPosUtilMixin",
+        "BuildingResourcesModuleMixin",
+        "BuildingStructureHandlerMixin"
+    ],
+    "client": [],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

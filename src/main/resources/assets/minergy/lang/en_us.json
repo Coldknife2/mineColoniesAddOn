@@ -1,0 +1,36 @@
+{
+  "com.minergy.job.mysticalmage": "Mystical Mage",
+
+  "com.minecolonies.coremod.setting.minergy:construction": "Use Minergy for construction",
+  "com.minecolonies.coremod.setting.tooltip.minergy:construction": "Builders may spend Minergy to place blocks they do not have. Blocks placed this way drop nothing.",
+  "com.minecolonies.coremod.setting.minergy:constructionmode": "Minergy construction mode",
+  "com.minecolonies.coremod.setting.tooltip.minergy:constructionmode": "Fallback: real blocks first, Minergy when missing. First: Minergy first, real blocks when Minergy runs out.",
+  "com.minergy.setting.mode.fallback": "Fallback",
+  "com.minergy.setting.mode.first": "Minergy first",
+
+  "com.minergy.gui.info.tab": "Minergy",
+  "com.minergy.gui.info.title": "Colony Minergy",
+  "com.minergy.gui.info.amount": "Stored: %s / %s",
+  "com.minergy.gui.info.amount.unlimited": "Stored: %s",
+  "com.minergy.gui.info.rate": "Generation: %s Minergy/s",
+  "com.minergy.gui.info.construction.on": "Construction: enabled",
+  "com.minergy.gui.info.construction.off": "Construction: disabled",
+  "com.minergy.gui.info.mode.fallback": "Mode: fallback (real blocks first)",
+  "com.minergy.gui.info.mode.first": "Mode: Minergy first",
+  "com.minergy.gui.info.nodata": "Waiting for the mage's report...",
+  "com.minergy.gui.info.help": "The Mystical Mage turns their focus into Minergy while working. 1 Minergy places 1 block for a builder. A block placed with Minergy drops nothing when broken. The best Mystical Site of the colony holds the settings.",
+
+  "com.minergy.hud.amount": "Minergy: %s",
+  "com.minergy.hud.mode.fallback": "Construction: fallback",
+  "com.minergy.hud.mode.first": "Construction: Minergy first",
+  "com.minergy.hud.disabled": "Construction: disabled",
+  "com.minergy.hud.nodata": "No colony data",
+
+  "com.minergy.mage.dialogue.flow": "Can you feel it? The Minergy flows through this place like a quiet river.",
+  "com.minergy.mage.dialogue.stone": "A block of Minergy looks like stone, feels like stone... but it is only a thought made solid.",
+  "com.minergy.mage.dialogue.builders": "Tell the builders not to worry about missing blocks. I will weave them what they need.",
+  "com.minergy.mage.dialogue.ephemeral": "Break a block made of Minergy and nothing remains. That is the price of a gift.",
+  "com.minergy.mage.dialogue.colony": "This Minergy is bound to our colony. It would fade away anywhere else.",
+  "com.minergy.mage.dialogue.focus": "Shhh... one more breath, one more block for the colony.",
+  "com.minergy.mage.dialogue.full": "The receptacle overflows! The builders should use our Minergy before it goes to waste."
+}
