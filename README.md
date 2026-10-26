@@ -9,16 +9,22 @@ Add-on **NeoForge 1.21.1** (compatible **All the Mods 10**) pour [MineColonies](
   - 4/s au niveau 1 avec un mage débutant ;
   - jusqu'à 20/s au niveau 5 avec Mana 99 ;
   - formule : `(4 + 3 × (niveau − 1)) × (1 + 0,25 × Mana/99)`, tous les paramètres sont configurables.
-- **Liée à la colonie** : la Minergie est stockée par colonie (dimension + id) et ne peut servir à aucune autre. La capacité vaut 100 000 × le niveau de la meilleure Bibliothèque (configurable, 0 = illimitée).
+- **Hôtel de ville** : dès qu'il est posé, il génère 1 Minergie par seconde (configurable), pour démarrer la colonie avant d'avoir une Bibliothèque.
+- **Liée à la colonie** : la Minergie est stockée par colonie (dimension + id) et ne peut servir à aucune autre. La capacité vaut 10 000 + 100 000 × le niveau de la meilleure Bibliothèque (configurable, 0 = illimitée).
 - **Construction** : à chaque pose de bloc, le bâtisseur choisit entre les vrais blocs et la Minergie selon le mode :
   - mode *Secours* (défaut) : on pose le vrai bloc s'il est dans l'inventaire du bâtisseur. Sinon, s'il reste au moins 1 Minergie, elle est consommée et le bloc est posé sans attendre de livraison. Les commandes de lots au warehouse continuent normalement.
   - mode *Minergie d'abord* : la Minergie est utilisée en priorité. Le bâtisseur ne réclame pas aux livreurs les lots de ressources que la Minergie peut payer.
+- **Boost de vitesse** : 120 Minergie achètent +50 % de vitesse de travail et de marche pour un citoyen pendant 60 s ; 240 donnent +100 %, 360 +150 %, etc. (jusqu'à 10 paliers, tout est configurable). Les boosts se cumulent. Un citoyen boosté place ses blocs, mine et fabrique plus vite (tous les délais de son IA sont divisés par 1 + bonus) et se déplace plus vite.
+  - depuis le **menu du citoyen** (clic droit) : onglet *Boost Minergie* en bas à gauche ;
+  - depuis l'onglet *Boost* de la Bibliothèque : liste des citoyens, bâtisseurs en tête ;
+  - **automatiquement par le mage** : au-delà d'un seuil de Minergie réglable dans la Bibliothèque (5 000 par défaut, 0 = jamais), le Mage mystique arrête de méditer et parcourt la colonie pour booster les travailleurs (bâtisseurs d'abord), avec un nombre de paliers réglable.
 - **Exclusions** : les entités (cadres, armor stands), les fluides (seaux) et le feu exigent toujours leurs vrais items, sinon on pourrait les récupérer.
 - **Blocs Minergie** : ils ne droppent rien quand on les casse, que ce soit par un joueur, une explosion, un piston, ou un bâtisseur qui déconstruit ou fait une amélioration. La marque est stockée dans le chunk (data attachment NeoForge) et suit le bloc quand un piston le pousse ou le tire.
-- **Réglages** : la Bibliothèque gagne trois onglets :
+- **Réglages** : la Bibliothèque gagne quatre onglets :
   - *Minergie* : réserve, débit, état ;
+  - *Boost* : booster un citoyen ;
   - *Travailleur* : recrutement du mage ;
-  - *Réglages* : activer ou désactiver la Minergie pour la construction, et choisir le mode.
+  - *Réglages* : Minergie pour la construction et son mode, seuil et niveau du boost automatique du mage.
 
   C'est la Bibliothèque de plus haut niveau qui porte les réglages de la colonie.
 - **Build mode (Structurize)** : la Minergie de la colonie s'affiche avec son icône en haut à gauche, quand le joueur tient le Build Tool ou que la fenêtre de placement est ouverte.
@@ -27,10 +33,12 @@ Add-on **NeoForge 1.21.1** (compatible **All the Mods 10**) pour [MineColonies](
 
 - Le métier est enregistré dans le registre `minecolonies:jobs`.
 - Les modules sont greffés sur l'entrée `minecolonies:library` existante, sans remplacer le bâtiment.
-- Trois Mixins (`remap = false`) :
+- Mixins (`remap = false`) :
   - `BuildingStructureHandler` : `hasRequiredItems`, `triggerSuccess`, `consume` ;
   - `BuildingResourcesModule.checkOrRequestBucket` : mode *Minergie d'abord* ;
-  - `BlockPosUtil.getBlockDrops` : drops calculés par les citoyens.
+  - `BlockPosUtil.getBlockDrops` : drops calculés par les citoyens ;
+  - `AbstractEntityAIBasic.setDelay` : délais de travail raccourcis pour un citoyen boosté ;
+  - `AbstractWindowCitizen` (client) : onglet *Boost Minergie* du menu citoyen.
 - Un Global Loot Modifier `minergy:no_drop`.
 
 ## Télécharger le mod

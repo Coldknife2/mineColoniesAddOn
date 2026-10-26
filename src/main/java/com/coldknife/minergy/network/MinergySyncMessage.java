@@ -11,12 +11,22 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Server to client: Minergy state of one colony.
  */
 public record MinergySyncMessage(ResourceKey<Level> dimension, int colonyId, long amount, long capacity, double rate, boolean constructionEnabled,
-                                 boolean minergyFirst) implements CustomPacketPayload
+                                 boolean minergyFirst, List<BoostInfo> boosts) implements CustomPacketPayload
 {
+    /**
+     * Active boost of a citizen: total bonus in percent and seconds left.
+     */
+    public record BoostInfo(int citizenId, int bonusPercent, int secondsLeft)
+    {
+    }
+
     public static final Type<MinergySyncMessage> TYPE = new Type<>(Minergy.id("sync"));
 
     public static final StreamCodec<FriendlyByteBuf, MinergySyncMessage> STREAM_CODEC = StreamCodec.of(MinergySyncMessage::encode, MinergySyncMessage::decode);
@@ -30,17 +40,31 @@ public record MinergySyncMessage(ResourceKey<Level> dimension, int colonyId, lon
         buf.writeDouble(message.rate);
         buf.writeBoolean(message.constructionEnabled);
         buf.writeBoolean(message.minergyFirst);
+        buf.writeVarInt(message.boosts.size());
+        for (final BoostInfo boost : message.boosts)
+        {
+            buf.writeVarInt(boost.citizenId);
+            buf.writeVarInt(boost.bonusPercent);
+            buf.writeVarInt(boost.secondsLeft);
+        }
     }
 
     private static MinergySyncMessage decode(final FriendlyByteBuf buf)
     {
-        return new MinergySyncMessage(buf.readResourceKey(Registries.DIMENSION),
-            buf.readVarInt(),
-            buf.readVarLong(),
-            buf.readLong(),
-            buf.readDouble(),
-            buf.readBoolean(),
-            buf.readBoolean());
+        final ResourceKey<Level> dimension = buf.readResourceKey(Registries.DIMENSION);
+        final int colonyId = buf.readVarInt();
+        final long amount = buf.readVarLong();
+        final long capacity = buf.readLong();
+        final double rate = buf.readDouble();
+        final boolean constructionEnabled = buf.readBoolean();
+        final boolean minergyFirst = buf.readBoolean();
+        final int count = buf.readVarInt();
+        final List<BoostInfo> boosts = new ArrayList<>(count);
+        for (int i = 0; i < count; i++)
+        {
+            boosts.add(new BoostInfo(buf.readVarInt(), buf.readVarInt(), buf.readVarInt()));
+        }
+        return new MinergySyncMessage(dimension, colonyId, amount, capacity, rate, constructionEnabled, minergyFirst, boosts);
     }
 
     /**

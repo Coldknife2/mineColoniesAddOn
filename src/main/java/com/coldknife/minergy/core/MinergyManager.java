@@ -12,7 +12,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -94,8 +96,16 @@ public final class MinergyManager
         {
             return Long.MAX_VALUE;
         }
-        final IBuilding site = getMainLibrary(colony);
-        return site == null ? 0 : perLevel * Math.max(1, site.getBuildingLevel());
+        final IBuilding library = getMainLibrary(colony);
+        return MinergyConfig.BASE_STORAGE.get() + (library == null ? 0 : perLevel * Math.max(1, library.getBuildingLevel()));
+    }
+
+    /**
+     * @return the Minergy per second of the town hall, 0 if the colony has none.
+     */
+    public static double getTownHallRate(final IColony colony)
+    {
+        return colony.getServerBuildingManager().hasTownHall() ? MinergyConfig.TOWN_HALL_RATE.get() : 0.0D;
     }
 
     /**
@@ -116,6 +126,14 @@ public final class MinergyManager
             data.setAmount(key, capped);
             DIRTY.add(key);
         }
+    }
+
+    /**
+     * Sends the colony's state to its close players at the next sync.
+     */
+    public static void markDirty(final IColony colony)
+    {
+        DIRTY.add(key(colony));
     }
 
     /**
@@ -169,6 +187,25 @@ public final class MinergyManager
     }
 
     /**
+     * @return the Minergy stock above which the mage boosts the workers, 0 if disabled.
+     */
+    public static int getAutoBoostThreshold(final IColony colony)
+    {
+        final IBuilding library = getMainLibrary(colony);
+        return library == null ? 0 : Math.max(0, library.getSettingValueOrDefault(MinergyBuildingModules.AUTO_BOOST_THRESHOLD, 0));
+    }
+
+    /**
+     * @return the number of boost steps the mage gives to each worker.
+     */
+    public static int getAutoBoostSteps(final IColony colony)
+    {
+        final IBuilding library = getMainLibrary(colony);
+        final int steps = library == null ? 1 : library.getSettingValueOrDefault(MinergyBuildingModules.AUTO_BOOST_STEPS, 1);
+        return Math.max(1, Math.min(MinergyConfig.BOOST_MAX_STEPS.get(), steps));
+    }
+
+    /**
      * Called by a working mage to publish its current generation rate.
      */
     public static void reportRate(final IColony colony, final int citizenId, final double ratePerSecond)
@@ -178,18 +215,18 @@ public final class MinergyManager
     }
 
     /**
-     * @return the sum of the rates of the mages that worked recently.
+     * @return the town hall rate plus the rates of the mages that worked recently.
      */
     public static double getRate(final IColony colony)
     {
+        double total = getTownHallRate(colony);
         final Map<Integer, RateReport> reports = RATES.get(key(colony));
         if (reports == null)
         {
-            return 0.0D;
+            return total;
         }
         final long now = colony.getWorld().getGameTime();
         reports.values().removeIf(report -> now - report.tick > RATE_TIMEOUT_TICKS);
-        double total = 0.0D;
         for (final RateReport report : reports.values())
         {
             total += report.rate;
@@ -205,6 +242,7 @@ public final class MinergyManager
         final String key = key(colony);
         RATES.remove(key);
         DIRTY.remove(key);
+        MinergyBoosts.onColonyDeleted(colony);
         final MinergySavedData data = data();
         if (data != null)
         {
@@ -213,7 +251,7 @@ public final class MinergyManager
     }
 
     /**
-     * Server tick: sends the Minergy state to the players close to each colony.
+     * Server tick, every second: town hall generation, then the Minergy state sent to the players close to each colony.
      */
     public static void onServerTick()
     {
@@ -226,6 +264,9 @@ public final class MinergyManager
 
         for (final IColony colony : IColonyManager.getInstance().getAllColonies())
         {
+            generate(colony, getTownHallRate(colony));
+            MinergyBoosts.tick(colony);
+
             final String key = key(colony);
             if (!full && !DIRTY.contains(key))
             {
@@ -254,7 +295,22 @@ public final class MinergyManager
             getCapacity(colony),
             getRate(colony),
             isConstructionEnabled(colony),
-            isConstructionMinergyFirst(colony));
+            isConstructionMinergyFirst(colony),
+            createBoostInfos(colony));
+    }
+
+    private static List<MinergySyncMessage.BoostInfo> createBoostInfos(final IColony colony)
+    {
+        final List<MinergySyncMessage.BoostInfo> infos = new ArrayList<>();
+        for (final int citizenId : MinergyBoosts.getBoostedCitizens(colony))
+        {
+            final double bonus = MinergyBoosts.getBonus(colony, citizenId);
+            if (bonus > 0)
+            {
+                infos.add(new MinergySyncMessage.BoostInfo(citizenId, (int) Math.round(bonus * 100), MinergyBoosts.getSecondsLeft(colony, citizenId)));
+            }
+        }
+        return infos;
     }
 
     private record RateReport(double rate, long tick)

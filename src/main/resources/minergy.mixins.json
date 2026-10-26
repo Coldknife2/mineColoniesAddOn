@@ -4,11 +4,14 @@
     "package": "com.coldknife.minergy.mixin",
     "compatibilityLevel": "JAVA_21",
     "mixins": [
+        "AbstractEntityAIBasicMixin",
         "BlockPosUtilMixin",
         "BuildingResourcesModuleMixin",
         "BuildingStructureHandlerMixin"
     ],
-    "client": [],
+    "client": [
+        "client.AbstractWindowCitizenMixin"
+    ],
     "injectors": {
         "defaultRequire": 1
     }
