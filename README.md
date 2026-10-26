@@ -15,7 +15,7 @@ Add-on **NeoForge 1.21.1** (compatible **All the Mods 10**) pour [MineColonies](
   - mode *Secours* (défaut) : on pose le vrai bloc s'il est dans l'inventaire du bâtisseur. Sinon, s'il reste au moins 1 Minergie, elle est consommée et le bloc est posé sans attendre de livraison. Les commandes de lots au warehouse continuent normalement.
   - mode *Minergie d'abord* : la Minergie est utilisée en priorité. Le bâtisseur ne réclame pas aux livreurs les lots de ressources que la Minergie peut payer.
 - **Boost de vitesse** : 120 Minergie achètent +50 % de vitesse de travail et de marche pour un citoyen pendant 60 s ; 240 donnent +100 %, 360 +150 %, etc. (jusqu'à 10 paliers, tout est configurable). Les boosts se cumulent. Un citoyen boosté place ses blocs, mine et fabrique plus vite (tous les délais de son IA sont divisés par 1 + bonus) et se déplace plus vite.
-  - depuis le **menu du citoyen** (clic droit) : onglet *Boost Minergie* en bas à gauche ;
+  - depuis le **menu du citoyen** (clic droit) : onglet *Boost Minergie*, sous les autres onglets ;
   - depuis l'onglet *Boost* de la Bibliothèque : liste des citoyens, bâtisseurs en tête ;
   - **automatiquement par le mage** : au-delà d'un seuil de Minergie réglable dans la Bibliothèque (5 000 par défaut, 0 = jamais), le Mage mystique arrête de méditer et parcourt la colonie pour booster les travailleurs (bâtisseurs d'abord), avec un nombre de paliers réglable.
 - **Exclusions** : les entités (cadres, armor stands), les fluides (seaux) et le feu exigent toujours leurs vrais items, sinon on pourrait les récupérer.
