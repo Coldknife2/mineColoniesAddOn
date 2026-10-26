@@ -19,7 +19,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 /**
- * Lets the builder place a block paid with Minergy when its item is missing (or before using it, in "Minergy first" mode).
+ * Lets the builder place a block paid with Minergy when its item is missing from its inventory (or before using it, in
+ * "Minergy first" mode).
  * <p>
  * Structurize calls, for each block: hasRequiredItems -> placement -> triggerSuccess -> consume.
  */
@@ -42,22 +43,16 @@ public abstract class BuildingStructureHandlerMixin
     @Unique
     private boolean minergy$skipConsume = false;
 
+    /**
+     * Decides before MineColonies looks at the inventory: when the items are missing, MineColonies creates a citizen request
+     * and the builder stops working until it is delivered, so Minergy must take over before that request exists.
+     */
     @Inject(method = "hasRequiredItems", at = @At("HEAD"), cancellable = true)
-    private void minergy$minergyFirst(final List<ItemStack> requiredItems, final CallbackInfoReturnable<Boolean> cir)
+    private void minergy$useMinergy(final List<ItemStack> requiredItems, final CallbackInfoReturnable<Boolean> cir)
     {
         minergy$pending = false;
         minergy$skipConsume = false;
-        if (MinergyConstruction.shouldUseMinergyFirst(structureAI, requiredItems))
-        {
-            minergy$pending = true;
-            cir.setReturnValue(true);
-        }
-    }
-
-    @Inject(method = "hasRequiredItems", at = @At("RETURN"), cancellable = true)
-    private void minergy$minergyFallback(final List<ItemStack> requiredItems, final CallbackInfoReturnable<Boolean> cir)
-    {
-        if (!minergy$pending && !cir.getReturnValueZ() && MinergyConstruction.canUseMinergyAsFallback(structureAI, requiredItems))
+        if (MinergyConstruction.shouldUseMinergy(structureAI, requiredItems))
         {
             minergy$pending = true;
             cir.setReturnValue(true);

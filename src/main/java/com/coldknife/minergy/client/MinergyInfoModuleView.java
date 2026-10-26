@@ -11,7 +11,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Client-only tab of the Mystical Site showing the colony's Minergy (data comes from {@link ClientMinergyData}).
+ * Client-only tab of the Library showing the colony's Minergy (data comes from {@link ClientMinergyData}).
  */
 public class MinergyInfoModuleView extends AbstractBuildingModuleView
 {

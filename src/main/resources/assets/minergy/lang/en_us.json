@@ -18,7 +18,7 @@
   "com.minergy.gui.info.mode.fallback": "Mode: fallback (real blocks first)",
   "com.minergy.gui.info.mode.first": "Mode: Minergy first",
   "com.minergy.gui.info.nodata": "Waiting for the mage's report...",
-  "com.minergy.gui.info.help": "The Mystical Mage turns their focus into Minergy while working. 1 Minergy places 1 block for a builder. A block placed with Minergy drops nothing when broken. The best Mystical Site of the colony holds the settings.",
+  "com.minergy.gui.info.help": "The Mystical Mage turns their focus into Minergy while working. 1 Minergy places 1 block for a builder. A block placed with Minergy drops nothing when broken. The best Library of the colony holds the settings.",
 
   "com.minergy.hud.amount": "Minergy: %s",
   "com.minergy.hud.mode.fallback": "Construction: fallback",

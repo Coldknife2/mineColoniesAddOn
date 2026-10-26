@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Window of the Minergy tab of the Mystical Site.
+ * Window of the Minergy tab of the Library.
  */
 public class MinergyInfoModuleWindow extends AbstractModuleWindow<MinergyInfoModuleView>
 {
