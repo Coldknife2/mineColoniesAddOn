@@ -33,6 +33,12 @@ Add-on Forge 1.20.1 pour [MineColonies](https://github.com/ldtteam/minecolonies)
   - `BlockPosUtil.getBlockDrops` : drops calculés par les citoyens.
 - Un Global Loot Modifier `minergy:no_drop`.
 
+## Télécharger le mod
+
+Chaque merge sur `main` déclenche un build GitHub Actions qui publie le `.jar` dans les **Releases** du dépôt (onglet *Releases*, dernière version en haut). Il suffit de déposer `minergy-<version>.jar` dans le dossier `mods/` d'une instance Minecraft 1.20.1 Forge qui contient déjà MineColonies et ses dépendances (Structurize, BlockUI, Domum Ornamentum, Multi-Piston).
+
+Les pull requests sont aussi buildées : le jar est alors disponible dans l'onglet *Actions* (artefact du run).
+
 ## Développement
 
 Il faut un JDK 17.
