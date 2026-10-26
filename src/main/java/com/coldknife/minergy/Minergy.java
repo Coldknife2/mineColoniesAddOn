@@ -15,6 +15,7 @@ import com.minecolonies.api.eventbus.events.colony.ColonyDeletedModEvent;
 import com.minecolonies.api.sounds.ModSoundEvents;
 import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.mojang.logging.LogUtils;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
@@ -56,6 +57,11 @@ public class Minergy
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MinecraftForge.EVENT_BUS.register(new MinergyHud()));
 
         MinergyNetwork.register();
+    }
+
+    public static ResourceLocation id(final String path)
+    {
+        return new ResourceLocation(MOD_ID, path);
     }
 
     private void onRegisterCapabilities(final RegisterCapabilitiesEvent event)

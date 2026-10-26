@@ -7,7 +7,8 @@ import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
  */
 public enum MageState implements IAIState
 {
-    MEDITATE(true);
+    MEDITATE(true),
+    BOOST_WORKERS(true);
 
     private final boolean isOkayToEat;
 
