@@ -5,7 +5,8 @@ import com.coldknife.minergy.network.MinergyNetwork;
 import com.coldknife.minergy.network.MinergySyncMessage;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
-import com.minecolonies.api.colony.buildings.IMysticalSite;
+import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.core.colony.buildings.workerbuildings.BuildingLibrary;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -67,17 +68,17 @@ public final class MinergyManager
     }
 
     /**
-     * @return the best (highest level) Mystical Site of the colony, or null if none.
+     * @return the best (highest level) Library of the colony, which holds the Minergy settings, or null if none.
      */
     @Nullable
-    public static IMysticalSite getMainSite(final IColony colony)
+    public static IBuilding getMainLibrary(final IColony colony)
     {
-        IMysticalSite best = null;
-        for (final IMysticalSite site : colony.getServerBuildingManager().getMysticalSites())
+        IBuilding best = null;
+        for (final IBuilding building : colony.getServerBuildingManager().getBuildings().values())
         {
-            if (best == null || site.getBuildingLevel() > best.getBuildingLevel())
+            if (building instanceof BuildingLibrary && (best == null || building.getBuildingLevel() > best.getBuildingLevel()))
             {
-                best = site;
+                best = building;
             }
         }
         return best;
@@ -93,7 +94,7 @@ public final class MinergyManager
         {
             return Long.MAX_VALUE;
         }
-        final IMysticalSite site = getMainSite(colony);
+        final IBuilding site = getMainLibrary(colony);
         return site == null ? 0 : perLevel * Math.max(1, site.getBuildingLevel());
     }
 
@@ -149,11 +150,11 @@ public final class MinergyManager
     }
 
     /**
-     * @return true if the colony's main Mystical Site allows Minergy for constructions.
+     * @return true if the colony's main Library allows Minergy for constructions.
      */
     public static boolean isConstructionEnabled(final IColony colony)
     {
-        final IMysticalSite site = getMainSite(colony);
+        final IBuilding site = getMainLibrary(colony);
         return site != null && site.getSettingValueOrDefault(MinergyBuildingModules.CONSTRUCTION, true);
     }
 
@@ -162,7 +163,7 @@ public final class MinergyManager
      */
     public static boolean isConstructionMinergyFirst(final IColony colony)
     {
-        final IMysticalSite site = getMainSite(colony);
+        final IBuilding site = getMainLibrary(colony);
         return site != null
                  && MinergyBuildingModules.MODE_FIRST.equals(site.getSettingValueOrDefault(MinergyBuildingModules.CONSTRUCTION_MODE, MinergyBuildingModules.MODE_FALLBACK));
     }

@@ -2,6 +2,9 @@ package com.coldknife.minergy.core;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.crafting.ItemStorage;
+import com.minecolonies.api.util.InventoryUtils;
+import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.core.colony.buildings.utils.BuilderBucket;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBuilder;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIStructure;
@@ -10,7 +13,9 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Rules for the builders' placements paid with Minergy.
@@ -65,24 +70,40 @@ public final class MinergyConstruction
     }
 
     /**
-     * @return true if the placement of these items must be paid with Minergy before even looking at the inventory.
+     * @return true if this placement must be paid with Minergy: always in "Minergy first" mode, and in fallback mode when the
+     * builder does not carry every required item.
      */
-    public static boolean shouldUseMinergyFirst(final AbstractEntityAIStructure<?, ?> ai, final List<ItemStack> requiredItems)
+    public static boolean shouldUseMinergy(final AbstractEntityAIStructure<?, ?> ai, final List<ItemStack> requiredItems)
     {
         final IColony colony = getBuilderColony(ai);
-        return colony != null
-                 && canBePaidWithMinergy(requiredItems)
-                 && MinergyManager.isConstructionMinergyFirst(colony)
-                 && MinergyManager.has(colony, costPerBlock());
+        if (colony == null || !canBePaidWithMinergy(requiredItems) || !MinergyManager.has(colony, costPerBlock()))
+        {
+            return false;
+        }
+        return MinergyManager.isConstructionMinergyFirst(colony) || !hasAllInInventory(ai, requiredItems);
     }
 
     /**
-     * @return true if the placement can be paid with Minergy because the real items are missing.
+     * Same check as the builder's inventory lookup, without creating any request.
      */
-    public static boolean canUseMinergyAsFallback(final AbstractEntityAIStructure<?, ?> ai, final List<ItemStack> requiredItems)
+    private static boolean hasAllInInventory(final AbstractEntityAIStructure<?, ?> ai, final List<ItemStack> requiredItems)
     {
-        final IColony colony = getBuilderColony(ai);
-        return colony != null && canBePaidWithMinergy(requiredItems) && MinergyManager.has(colony, costPerBlock());
+        final Map<ItemStorage, Integer> needed = new HashMap<>();
+        for (final ItemStack stack : requiredItems)
+        {
+            needed.merge(new ItemStorage(stack), stack.getCount(), Integer::sum);
+        }
+        for (final Map.Entry<ItemStorage, Integer> entry : needed.entrySet())
+        {
+            final ItemStack wanted = entry.getKey().getItemStack();
+            final int count = InventoryUtils.getItemCountInItemHandler(ai.getWorker().getInventoryCitizen(),
+                stack -> ItemStackUtils.compareItemStacksIgnoreStackSize(wanted, stack));
+            if (count < entry.getValue())
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
