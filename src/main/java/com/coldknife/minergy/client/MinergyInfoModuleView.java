@@ -3,11 +3,11 @@ package com.coldknife.minergy.client;
 import com.coldknife.minergy.Minergy;
 import com.ldtteam.blockui.views.BOWindow;
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModuleView;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 public class MinergyInfoModuleView extends AbstractBuildingModuleView
 {
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final RegistryFriendlyByteBuf buf)
     {
     }
 
@@ -30,7 +30,7 @@ public class MinergyInfoModuleView extends AbstractBuildingModuleView
     @Override
     public ResourceLocation getIconResourceLocation()
     {
-        return new ResourceLocation(Minergy.MOD_ID, "textures/gui/minergy_tab.png");
+        return Minergy.id("textures/gui/minergy_tab.png");
     }
 
     @Override

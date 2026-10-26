@@ -1,6 +1,6 @@
 # MineColonies Minergy (add-on)
 
-Add-on Forge 1.20.1 pour [MineColonies](https://github.com/ldtteam/minecolonies) qui ajoute la **Minergie** (*Minergy*) : une énergie propre à chaque colonie, produite au **Mystical Site**, que les bâtisseurs dépensent pour poser les blocs qui leur manquent.
+Add-on **NeoForge 1.21.1** (compatible **All the Mods 10**) pour [MineColonies](https://github.com/ldtteam/minecolonies) qui ajoute la **Minergie** (*Minergy*) : une énergie propre à chaque colonie, produite au **Mystical Site**, que les bâtisseurs dépensent pour poser les blocs qui leur manquent.
 
 ## Fonctionnement
 
@@ -14,7 +14,7 @@ Add-on Forge 1.20.1 pour [MineColonies](https://github.com/ldtteam/minecolonies)
   - mode *Secours* (défaut) : on pose le vrai bloc s'il est dans l'inventaire. Sinon, s'il reste au moins 1 Minergie, elle est consommée et le bloc est posé. Les requêtes de vrais blocs continuent normalement.
   - mode *Minergie d'abord* : la Minergie est utilisée en priorité. Le bâtisseur ne réclame pas aux livreurs les lots de ressources que la Minergie peut payer.
 - **Exclusions** : les entités (cadres, armor stands), les fluides (seaux) et le feu exigent toujours leurs vrais items, sinon on pourrait les récupérer.
-- **Blocs Minergie** : ils ne droppent rien quand on les casse, que ce soit par un joueur, une explosion, un piston, ou un bâtisseur qui déconstruit ou fait une amélioration. La marque est stockée dans le chunk et suit le bloc quand un piston le pousse ou le tire.
+- **Blocs Minergie** : ils ne droppent rien quand on les casse, que ce soit par un joueur, une explosion, un piston, ou un bâtisseur qui déconstruit ou fait une amélioration. La marque est stockée dans le chunk (data attachment NeoForge) et suit le bloc quand un piston le pousse ou le tire.
 - **Réglages** : le Mystical Site gagne trois onglets :
   - *Minergie* : réserve, débit, état ;
   - *Travailleur* : recrutement du mage ;
@@ -35,20 +35,29 @@ Add-on Forge 1.20.1 pour [MineColonies](https://github.com/ldtteam/minecolonies)
 
 ## Télécharger le mod
 
-Chaque merge sur `main` déclenche un build GitHub Actions qui publie le `.jar` dans les **Releases** du dépôt (onglet *Releases*, dernière version en haut). Il suffit de déposer `minergy-<version>.jar` dans le dossier `mods/` d'une instance Minecraft 1.20.1 Forge qui contient déjà MineColonies et ses dépendances (Structurize, BlockUI, Domum Ornamentum, Multi-Piston).
+Le mod existe en deux versions, une par branche :
+
+| Branche | Minecraft | Loader | Jar publié | Exemple de modpack |
+|---|---|---|---|---|
+| `main` | 1.21.1 | NeoForge | `minergy-neoforge-1.21.1-<version>.jar` | All the Mods 10 |
+| `1.20.1` | 1.20.1 | Forge | `minergy-forge-1.20.1-<version>.jar` | packs Forge 1.20.1 |
+
+Chaque merge sur l'une de ces branches déclenche un build GitHub Actions qui publie une **Release** nommée d'après le loader et la version de Minecraft (par exemple *Minergy 0.2.0 · NeoForge 1.21.1*, tag `neoforge-1.21.1-v0.2.0-build5`). Le badge *Latest* reste sur la version NeoForge 1.21.1. Il suffit de déposer le jar dans le dossier `mods/` d'une instance qui contient déjà MineColonies et ses dépendances (Structurize, BlockUI, Domum Ornamentum, Multi-Piston).
+
+Les nouvelles fonctionnalités sont développées sur `main` puis reportées sur `1.20.1` (seule la couche propre au loader diffère).
 
 Les pull requests sont aussi buildées : le jar est alors disponible dans l'onglet *Actions* (artefact du run).
 
 ## Développement
 
-Il faut un JDK 17.
+Il faut un JDK 21.
 
 ```
 ./gradlew build        # jar dans build/libs
 ./gradlew runClient    # client de dev avec MineColonies
 ```
 
-Versions : voir `gradle.properties`. L'add-on est aligné sur MineColonies `1.20.1-1.1.1303-snapshot` et Structurize `1.20.1-1.0.818`.
+Versions : voir `gradle.properties`. L'add-on est compilé contre MineColonies `1.1.1403-1.21.1` (Structurize `1.0.832-1.21.1-snapshot`, NeoForge `21.1.215`) et accepte MineColonies `1.1.1300-1.21.1` et plus.
 
 ## Pistes pour la suite (autres systèmes branchables sur la Minergie)
 

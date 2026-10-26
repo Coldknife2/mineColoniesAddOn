@@ -7,7 +7,7 @@ import com.coldknife.minergy.core.MinergyConfig;
 import com.coldknife.minergy.core.MinergyEvents;
 import com.coldknife.minergy.core.MinergyManager;
 import com.coldknife.minergy.loot.NoDropLootModifier;
-import com.coldknife.minergy.marks.ChunkMinergyMarks;
+import com.coldknife.minergy.marks.MinergyMarks;
 import com.coldknife.minergy.network.MinergyNetwork;
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.jobs.ModJobs;
@@ -15,16 +15,15 @@ import com.minecolonies.api.eventbus.events.colony.ColonyDeletedModEvent;
 import com.minecolonies.api.sounds.ModSoundEvents;
 import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.mojang.logging.LogUtils;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 
 import java.util.Objects;
@@ -40,27 +39,27 @@ public class Minergy
 
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public Minergy()
+    public Minergy(final IEventBus modBus, final ModContainer container)
     {
-        final IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, MinergyConfig.SPEC);
+        container.registerConfig(ModConfig.Type.SERVER, MinergyConfig.SPEC);
 
         MinergyJobs.JOBS.register(modBus);
         NoDropLootModifier.SERIALIZERS.register(modBus);
+        MinergyMarks.ATTACHMENT_TYPES.register(modBus);
 
-        modBus.addListener(this::onRegisterCapabilities);
         modBus.addListener(this::onCommonSetup);
+        modBus.addListener(MinergyNetwork::register);
 
-        MinecraftForge.EVENT_BUS.register(new MinergyEvents());
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MinecraftForge.EVENT_BUS.register(new MinergyHud()));
-
-        MinergyNetwork.register();
+        NeoForge.EVENT_BUS.register(new MinergyEvents());
+        if (FMLEnvironment.dist == Dist.CLIENT)
+        {
+            NeoForge.EVENT_BUS.register(new MinergyHud());
+        }
     }
 
-    private void onRegisterCapabilities(final RegisterCapabilitiesEvent event)
+    public static ResourceLocation id(final String path)
     {
-        event.register(ChunkMinergyMarks.class);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 
     private void onCommonSetup(final FMLCommonSetupEvent event)

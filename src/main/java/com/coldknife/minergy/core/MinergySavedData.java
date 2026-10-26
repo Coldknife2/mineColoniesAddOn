@@ -1,5 +1,6 @@
 package com.coldknife.minergy.core;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -25,10 +26,10 @@ public class MinergySavedData extends SavedData
 
     public static MinergySavedData get(final MinecraftServer server)
     {
-        return server.overworld().getDataStorage().computeIfAbsent(MinergySavedData::load, MinergySavedData::new, NAME);
+        return server.overworld().getDataStorage().computeIfAbsent(new SavedData.Factory<>(MinergySavedData::new, MinergySavedData::load), NAME);
     }
 
-    private static MinergySavedData load(final CompoundTag tag)
+    private static MinergySavedData load(final CompoundTag tag, final HolderLookup.Provider provider)
     {
         final MinergySavedData data = new MinergySavedData();
         final ListTag list = tag.getList(TAG_LIST, Tag.TAG_COMPOUND);
@@ -42,7 +43,7 @@ public class MinergySavedData extends SavedData
 
     @NotNull
     @Override
-    public CompoundTag save(@NotNull final CompoundTag tag)
+    public CompoundTag save(@NotNull final CompoundTag tag, @NotNull final HolderLookup.Provider provider)
     {
         final ListTag list = new ListTag();
         for (final Map.Entry<String, Double> entry : amounts.entrySet())

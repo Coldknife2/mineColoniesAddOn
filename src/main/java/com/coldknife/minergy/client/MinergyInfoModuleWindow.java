@@ -19,7 +19,7 @@ public class MinergyInfoModuleWindow extends AbstractModuleWindow<MinergyInfoMod
 
     public MinergyInfoModuleWindow(final MinergyInfoModuleView moduleView)
     {
-        super(moduleView, new ResourceLocation(Minergy.MOD_ID, "gui/layoutminergyinfo.xml"));
+        super(moduleView, Minergy.id("gui/layoutminergyinfo.xml"));
     }
 
     @Override
