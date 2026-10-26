@@ -1,6 +1,6 @@
 # MineColonies Minergy (add-on)
 
-Add-on Forge 1.20.1 pour [MineColonies](https://github.com/ldtteam/minecolonies) qui ajoute la **Minergie** (*Minergy*) : une énergie propre à chaque colonie, produite au **Mystical Site**, que les bâtisseurs dépensent pour poser les blocs qui leur manquent.
+Add-on **Forge 1.20.1** (branche `1.20.1` ; la version NeoForge 1.21.1 pour All the Mods 10 est sur `main`) pour [MineColonies](https://github.com/ldtteam/minecolonies) qui ajoute la **Minergie** (*Minergy*) : une énergie propre à chaque colonie, produite au **Mystical Site**, que les bâtisseurs dépensent pour poser les blocs qui leur manquent.
 
 ## Fonctionnement
 
@@ -35,7 +35,16 @@ Add-on Forge 1.20.1 pour [MineColonies](https://github.com/ldtteam/minecolonies)
 
 ## Télécharger le mod
 
-Chaque merge sur `main` déclenche un build GitHub Actions qui publie le `.jar` dans les **Releases** du dépôt (onglet *Releases*, dernière version en haut). Il suffit de déposer `minergy-<version>.jar` dans le dossier `mods/` d'une instance Minecraft 1.20.1 Forge qui contient déjà MineColonies et ses dépendances (Structurize, BlockUI, Domum Ornamentum, Multi-Piston).
+Le mod existe en deux versions, une par branche :
+
+| Branche | Minecraft | Loader | Jar publié | Exemple de modpack |
+|---|---|---|---|---|
+| `main` | 1.21.1 | NeoForge | `minergy-neoforge-1.21.1-<version>.jar` | All the Mods 10 |
+| `1.20.1` | 1.20.1 | Forge | `minergy-forge-1.20.1-<version>.jar` | packs Forge 1.20.1 |
+
+Chaque merge sur l'une de ces branches déclenche un build GitHub Actions qui publie une **Release** nommée d'après le loader et la version de Minecraft (par exemple *Minergy 0.2.0 · Forge 1.20.1*, tag `forge-1.20.1-v0.2.0-build6`). Le badge *Latest* reste sur la version NeoForge 1.21.1. Il suffit de déposer le jar dans le dossier `mods/` d'une instance qui contient déjà MineColonies et ses dépendances (Structurize, BlockUI, Domum Ornamentum, Multi-Piston).
+
+Les nouvelles fonctionnalités sont développées sur `main` puis reportées sur `1.20.1` (seule la couche propre au loader diffère).
 
 Les pull requests sont aussi buildées : le jar est alors disponible dans l'onglet *Actions* (artefact du run).
 
