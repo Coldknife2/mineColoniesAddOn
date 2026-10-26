@@ -4,14 +4,14 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.148'
 }
 
-version = "${mod_version}-${minecraft_version}"
+version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = mod_id
+    archivesName = "${mod_id}-${mod_loader}-${minecraft_version}"
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(java_version as int)
 
 neoForge {
     version = neoforge_version

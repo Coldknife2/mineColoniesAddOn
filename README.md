@@ -35,9 +35,16 @@ Add-on **NeoForge 1.21.1** (compatible **All the Mods 10**) pour [MineColonies](
 
 ## Télécharger le mod
 
-Chaque merge sur `main` déclenche un build GitHub Actions qui publie le `.jar` dans les **Releases** du dépôt (onglet *Releases*, dernière version en haut). Il suffit de déposer `minergy-<version>.jar` dans le dossier `mods/` d'une instance Minecraft 1.21.1 NeoForge qui contient déjà MineColonies et ses dépendances (Structurize, BlockUI, Domum Ornamentum, Multi-Piston) — c'est le cas d'ATM10.
+Le mod existe en deux versions, une par branche :
 
-La version 1.20.1 (Forge) reste disponible dans la release `v0.1.0-build2`.
+| Branche | Minecraft | Loader | Jar publié | Exemple de modpack |
+|---|---|---|---|---|
+| `main` | 1.21.1 | NeoForge | `minergy-neoforge-1.21.1-<version>.jar` | All the Mods 10 |
+| `1.20.1` | 1.20.1 | Forge | `minergy-forge-1.20.1-<version>.jar` | packs Forge 1.20.1 |
+
+Chaque merge sur l'une de ces branches déclenche un build GitHub Actions qui publie une **Release** nommée d'après le loader et la version de Minecraft (par exemple *Minergy 0.2.0 · NeoForge 1.21.1*, tag `neoforge-1.21.1-v0.2.0-build5`). Le badge *Latest* reste sur la version NeoForge 1.21.1. Il suffit de déposer le jar dans le dossier `mods/` d'une instance qui contient déjà MineColonies et ses dépendances (Structurize, BlockUI, Domum Ornamentum, Multi-Piston).
+
+Les nouvelles fonctionnalités sont développées sur `main` puis reportées sur `1.20.1` (seule la couche propre au loader diffère).
 
 Les pull requests sont aussi buildées : le jar est alors disponible dans l'onglet *Actions* (artefact du run).
 

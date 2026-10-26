@@ -1,8 +1,11 @@
 name: Build
 
+# One workflow for every branch: the loader, the Minecraft version and the Java version come from gradle.properties.
+#   main   -> NeoForge 1.21.1 (All the Mods 10)
+#   1.20.1 -> Forge 1.20.1
 on:
   push:
-    branches: [ main ]
+    branches: [ main, '1.20.1' ]
   pull_request:
   workflow_dispatch:
 
@@ -16,11 +19,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Read mod properties
+        id: props
+        run: |
+          prop() { grep "^$1=" gradle.properties | cut -d= -f2; }
+          echo "mod_version=$(prop mod_version)" >> "$GITHUB_OUTPUT"
+          echo "mc_version=$(prop minecraft_version)" >> "$GITHUB_OUTPUT"
+          echo "loader=$(prop mod_loader)" >> "$GITHUB_OUTPUT"
+          echo "loader_name=$(prop mod_loader_name)" >> "$GITHUB_OUTPUT"
+          echo "java_version=$(prop java_version)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up JDK ${{ steps.props.outputs.java_version }}
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: ${{ steps.props.outputs.java_version }}
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -30,29 +43,26 @@ jobs:
           chmod +x gradlew
           ./gradlew build --no-daemon
 
-      - name: Read mod version
-        id: version
-        run: |
-          echo "mod_version=$(grep '^mod_version=' gradle.properties | cut -d= -f2)" >> "$GITHUB_OUTPUT"
-          echo "mc_version=$(grep '^minecraft_version=' gradle.properties | cut -d= -f2)" >> "$GITHUB_OUTPUT"
-
       - name: Upload the jar as a workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: minergy-${{ steps.version.outputs.mod_version }}-${{ steps.version.outputs.mc_version }}-build${{ github.run_number }}
+          name: minergy-${{ steps.props.outputs.loader }}-${{ steps.props.outputs.mc_version }}-${{ steps.props.outputs.mod_version }}-build${{ github.run_number }}
           path: build/libs/*.jar
 
-      # On main only: publish a GitHub Release with the jar, downloadable from the "Releases" page.
+      # On main and 1.20.1 only: publish a GitHub Release with the jar, downloadable from the "Releases" page.
       - name: Publish release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.mod_version }}-${{ steps.version.outputs.mc_version }}-build${{ github.run_number }}
-          name: Minergy ${{ steps.version.outputs.mod_version }} for Minecraft ${{ steps.version.outputs.mc_version }} (build ${{ github.run_number }})
+          tag_name: ${{ steps.props.outputs.loader }}-${{ steps.props.outputs.mc_version }}-v${{ steps.props.outputs.mod_version }}-build${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          name: Minergy ${{ steps.props.outputs.mod_version }} · ${{ steps.props.outputs.loader_name }} ${{ steps.props.outputs.mc_version }} (build ${{ github.run_number }})
           body: |
-            Build automatique de `main` (commit ${{ github.sha }}).
+            **Minecraft ${{ steps.props.outputs.mc_version }} · ${{ steps.props.outputs.loader_name }}** — build automatique de la branche `${{ github.ref_name }}` (commit ${{ github.sha }}).
 
-            Installation : déposer `minergy-${{ steps.version.outputs.mod_version }}-${{ steps.version.outputs.mc_version }}.jar` dans le dossier `mods/`
-            d'une instance Minecraft ${{ steps.version.outputs.mc_version }} NeoForge (par exemple All the Mods 10), avec MineColonies et ses dépendances.
+            Installation : déposer `minergy-${{ steps.props.outputs.loader }}-${{ steps.props.outputs.mc_version }}-${{ steps.props.outputs.mod_version }}.jar`
+            dans le dossier `mods/` d'une instance Minecraft ${{ steps.props.outputs.mc_version }} ${{ steps.props.outputs.loader_name }}
+            qui contient MineColonies et ses dépendances (Structurize, BlockUI, Domum Ornamentum, Multi-Piston).
           files: build/libs/*.jar
-          make_latest: true
+          # The "Latest" badge stays on the main branch (NeoForge 1.21.1 / All the Mods 10).
+          make_latest: ${{ github.ref == 'refs/heads/main' }}
