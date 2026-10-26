@@ -16,11 +16,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -32,12 +32,14 @@ jobs:
 
       - name: Read mod version
         id: version
-        run: echo "mod_version=$(grep '^mod_version=' gradle.properties | cut -d= -f2)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "mod_version=$(grep '^mod_version=' gradle.properties | cut -d= -f2)" >> "$GITHUB_OUTPUT"
+          echo "mc_version=$(grep '^minecraft_version=' gradle.properties | cut -d= -f2)" >> "$GITHUB_OUTPUT"
 
       - name: Upload the jar as a workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: minergy-${{ steps.version.outputs.mod_version }}-build${{ github.run_number }}
+          name: minergy-${{ steps.version.outputs.mod_version }}-${{ steps.version.outputs.mc_version }}-build${{ github.run_number }}
           path: build/libs/*.jar
 
       # On main only: publish a GitHub Release with the jar, downloadable from the "Releases" page.
@@ -45,12 +47,12 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.mod_version }}-build${{ github.run_number }}
-          name: Minergy ${{ steps.version.outputs.mod_version }} (build ${{ github.run_number }})
+          tag_name: v${{ steps.version.outputs.mod_version }}-${{ steps.version.outputs.mc_version }}-build${{ github.run_number }}
+          name: Minergy ${{ steps.version.outputs.mod_version }} for Minecraft ${{ steps.version.outputs.mc_version }} (build ${{ github.run_number }})
           body: |
             Build automatique de `main` (commit ${{ github.sha }}).
 
-            Installation : déposer `minergy-${{ steps.version.outputs.mod_version }}.jar` dans le dossier `mods/` de Minecraft 1.20.1 (Forge 47+),
-            avec MineColonies 1.20.1 et ses dépendances (Structurize, BlockUI, Domum Ornamentum, Multi-Piston).
+            Installation : déposer `minergy-${{ steps.version.outputs.mod_version }}-${{ steps.version.outputs.mc_version }}.jar` dans le dossier `mods/`
+            d'une instance Minecraft ${{ steps.version.outputs.mc_version }} NeoForge (par exemple All the Mods 10), avec MineColonies et ses dépendances.
           files: build/libs/*.jar
           make_latest: true

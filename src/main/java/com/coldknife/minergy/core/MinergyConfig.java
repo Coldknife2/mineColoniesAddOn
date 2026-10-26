@@ -1,24 +1,24 @@
 package com.coldknife.minergy.core;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 /**
  * Server-side configuration (saved per world in serverconfig/minergy-server.toml).
  */
 public final class MinergyConfig
 {
-    public static final ForgeConfigSpec SPEC;
+    public static final ModConfigSpec SPEC;
 
-    public static final ForgeConfigSpec.IntValue    COST_PER_BLOCK;
-    public static final ForgeConfigSpec.DoubleValue BASE_RATE;
-    public static final ForgeConfigSpec.DoubleValue RATE_PER_LEVEL;
-    public static final ForgeConfigSpec.DoubleValue MAX_SKILL_BONUS;
-    public static final ForgeConfigSpec.DoubleValue RATE_MULTIPLIER;
-    public static final ForgeConfigSpec.LongValue   STORAGE_PER_LEVEL;
+    public static final ModConfigSpec.IntValue    COST_PER_BLOCK;
+    public static final ModConfigSpec.DoubleValue BASE_RATE;
+    public static final ModConfigSpec.DoubleValue RATE_PER_LEVEL;
+    public static final ModConfigSpec.DoubleValue MAX_SKILL_BONUS;
+    public static final ModConfigSpec.DoubleValue RATE_MULTIPLIER;
+    public static final ModConfigSpec.LongValue   STORAGE_PER_LEVEL;
 
     static
     {
-        final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+        final ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
         builder.comment("Minergy cost of the placements made with Minergy").push("cost");
         COST_PER_BLOCK = builder

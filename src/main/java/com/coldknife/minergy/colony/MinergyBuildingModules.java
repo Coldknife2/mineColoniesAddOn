@@ -28,13 +28,13 @@ public final class MinergyBuildingModules
      * Use Minergy for the builders' constructions.
      */
     public static final ISettingKey<BoolSetting> CONSTRUCTION =
-        new SettingKey<>(BoolSetting.class, new ResourceLocation(Minergy.MOD_ID, "construction"));
+        new SettingKey<>(BoolSetting.class, Minergy.id("construction"));
 
     /**
      * Fallback (real blocks first) or first (Minergy first).
      */
     public static final ISettingKey<StringSetting> CONSTRUCTION_MODE =
-        new SettingKey<>(StringSetting.class, new ResourceLocation(Minergy.MOD_ID, "constructionmode"));
+        new SettingKey<>(StringSetting.class, Minergy.id("constructionmode"));
 
     public static final BuildingEntry.ModuleProducer<WorkerBuildingModule, WorkerBuildingModuleView> MAGE_WORK =
         new BuildingEntry.ModuleProducer<>("minergy_mage_work",

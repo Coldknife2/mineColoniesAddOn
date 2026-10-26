@@ -14,10 +14,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.NumberFormat;
@@ -27,7 +27,7 @@ import java.text.NumberFormat;
  */
 public final class MinergyHud
 {
-    public static final ResourceLocation ICON = new ResourceLocation(Minergy.MOD_ID, "textures/gui/minergy.png");
+    public static final ResourceLocation ICON = Minergy.id("textures/gui/minergy.png");
 
     private static final int ICON_SIZE = 16;
     private static final int MARGIN    = 6;

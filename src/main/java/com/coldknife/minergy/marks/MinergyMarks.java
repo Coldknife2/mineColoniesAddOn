@@ -3,9 +3,7 @@ package com.coldknife.minergy.marks;
 import com.coldknife.minergy.Minergy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -14,13 +12,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
-import net.minecraftforge.common.util.LazyOptional;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Supplier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +28,14 @@ import java.util.List;
  */
 public final class MinergyMarks
 {
-    public static final Capability<ChunkMinergyMarks> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
+    public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES =
+        DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, Minergy.MOD_ID);
 
-    public static final ResourceLocation CAPABILITY_ID = new ResourceLocation(Minergy.MOD_ID, "marks");
+    /**
+     * Marks of a chunk, saved with the chunk.
+     */
+    public static final Supplier<AttachmentType<ChunkMinergyMarks>> MARKS =
+        ATTACHMENT_TYPES.register("marks", () -> AttachmentType.serializable(ChunkMinergyMarks::new).build());
 
     /**
      * Positions to re-check at the end of the tick: the mark is removed if the marked block is gone.
@@ -43,14 +46,18 @@ public final class MinergyMarks
     {
     }
 
+    /**
+     * @param create true to create the marks of the chunk if it has none yet.
+     */
     @Nullable
-    private static ChunkMinergyMarks marks(final Level level, final BlockPos pos)
+    private static ChunkMinergyMarks marks(final Level level, final BlockPos pos, final boolean create)
     {
         if (level.isClientSide() || !level.hasChunkAt(pos))
         {
             return null;
         }
-        return level.getChunkAt(pos).getCapability(CAPABILITY).resolve().orElse(null);
+        final LevelChunk chunk = level.getChunkAt(pos);
+        return create ? chunk.getData(MARKS) : chunk.getExistingData(MARKS).orElse(null);
     }
 
     /**
@@ -108,7 +115,7 @@ public final class MinergyMarks
 
     public static void mark(final Level level, final BlockPos pos, final Block block)
     {
-        final ChunkMinergyMarks marks = marks(level, pos);
+        final ChunkMinergyMarks marks = marks(level, pos, true);
         if (marks != null)
         {
             marks.put(pos.asLong(), block);
@@ -118,7 +125,7 @@ public final class MinergyMarks
 
     public static void unmark(final Level level, final BlockPos pos)
     {
-        final ChunkMinergyMarks marks = marks(level, pos);
+        final ChunkMinergyMarks marks = marks(level, pos, false);
         if (marks != null && marks.remove(pos.asLong()))
         {
             level.getChunkAt(pos).setUnsaved(true);
@@ -128,7 +135,7 @@ public final class MinergyMarks
     @Nullable
     public static Block getMark(final Level level, final BlockPos pos)
     {
-        final ChunkMinergyMarks marks = marks(level, pos);
+        final ChunkMinergyMarks marks = marks(level, pos, false);
         return marks == null ? null : marks.get(pos.asLong());
     }
 
@@ -214,33 +221,5 @@ public final class MinergyMarks
 
     private record PendingCheck(ResourceKey<Level> dimension, BlockPos pos)
     {
-    }
-
-    /**
-     * Capability provider attached to every server chunk.
-     */
-    public static class Provider implements ICapabilitySerializable<CompoundTag>
-    {
-        private final ChunkMinergyMarks                 marks    = new ChunkMinergyMarks();
-        private final LazyOptional<ChunkMinergyMarks>   optional = LazyOptional.of(() -> marks);
-
-        @NotNull
-        @Override
-        public <T> LazyOptional<T> getCapability(@NotNull final Capability<T> cap, @Nullable final Direction side)
-        {
-            return CAPABILITY.orEmpty(cap, optional);
-        }
-
-        @Override
-        public CompoundTag serializeNBT()
-        {
-            return marks.serialize();
-        }
-
-        @Override
-        public void deserializeNBT(final CompoundTag tag)
-        {
-            marks.deserialize(tag);
-        }
     }
 }

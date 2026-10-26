@@ -5,29 +5,18 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.piston.PistonStructureResolver;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.level.ExplosionEvent;
-import net.minecraftforge.event.level.PistonEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.ExplosionEvent;
+import net.neoforged.neoforge.event.level.PistonEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
 
 /**
- * Forge bus events: chunk marks, mark bookkeeping, server tick.
+ * Game bus events: mark bookkeeping, server tick.
  */
 public final class MinergyEvents
 {
-    @SubscribeEvent
-    public void onAttachChunkCapabilities(final AttachCapabilitiesEvent<LevelChunk> event)
-    {
-        if (!event.getObject().getLevel().isClientSide())
-        {
-            event.addCapability(MinergyMarks.CAPABILITY_ID, new MinergyMarks.Provider());
-        }
-    }
-
     /**
      * A block placed by a player or an entity replaces any old mark.
      */
@@ -89,12 +78,8 @@ public final class MinergyEvents
     }
 
     @SubscribeEvent
-    public void onServerTick(final TickEvent.ServerTickEvent event)
+    public void onServerTick(final ServerTickEvent.Post event)
     {
-        if (event.phase != TickEvent.Phase.END)
-        {
-            return;
-        }
         MinergyMarks.processPendingChecks(event.getServer());
         MinergyManager.onServerTick();
     }
