@@ -1,8 +1,10 @@
 package com.coldknife.minergy.ai;
 
 import com.coldknife.minergy.colony.JobMysticalMage;
+import com.coldknife.minergy.core.MinergyBoosts;
 import com.coldknife.minergy.core.MinergyConfig;
 import com.coldknife.minergy.core.MinergyManager;
+import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
@@ -10,13 +12,19 @@ import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingLibrary;
 import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIInteract;
+import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.core.entity.other.SittingEntity;
+import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.IDLE;
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.START_WORKING;
@@ -24,6 +32,8 @@ import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 
 /**
  * The Mystical Mage sits down near a bookshelf of the Library and turns its concentration into Minergy, every second of work.
+ * When the colony's Minergy goes above the Library's auto boost threshold, it stands up and walks around the colony to boost
+ * the workers (builders first), until the stock falls back below the threshold.
  */
 public class EntityAIWorkMysticalMage extends AbstractEntityAIInteract<JobMysticalMage, BuildingLibrary>
 {
@@ -69,6 +79,28 @@ public class EntityAIWorkMysticalMage extends AbstractEntityAIInteract<JobMystic
 
     private static final String DIALOGUE_FULL = "com.minergy.mage.dialogue.full";
 
+    private static final String DIALOGUE_BOOST = "com.minergy.mage.dialogue.boost";
+
+    /**
+     * Seconds between two checks of the auto boost threshold while meditating.
+     */
+    private static final int AUTO_BOOST_CHECK_SECONDS = 10;
+
+    /**
+     * Max seconds spent walking to one worker before choosing another one.
+     */
+    private static final int MAX_BOOST_WALK_SECONDS = 60;
+
+    /**
+     * Distance (blocks) to the worker to give it the boost.
+     */
+    private static final int BOOST_REACH = 3;
+
+    /**
+     * Seconds of meditation when no worker can be boosted, before looking again.
+     */
+    private static final int NO_TARGET_COOLDOWN_SECONDS = 60;
+
     /**
      * Where the mage walks to before sitting down (a bookshelf of the Library).
      */
@@ -82,13 +114,22 @@ public class EntityAIWorkMysticalMage extends AbstractEntityAIInteract<JobMystic
     private int      walkSeconds   = 0;
     private int      secondsWorked = 0;
 
+    /**
+     * Worker the mage walks to, to boost it.
+     */
+    @Nullable
+    private ICitizenData boostTarget      = null;
+    private int          boostWalkSeconds = 0;
+    private int          boostCooldown    = 0;
+
     public EntityAIWorkMysticalMage(@NotNull final JobMysticalMage job)
     {
         super(job);
         super.registerTargets(
             new AITarget(IDLE, START_WORKING, 1),
             new AITarget(START_WORKING, this::startWorkingAtOwnBuilding, TICKS_SECOND),
-            new AITarget(MageState.MEDITATE, this::meditate, TICKS_SECOND)
+            new AITarget(MageState.MEDITATE, this::meditate, TICKS_SECOND),
+            new AITarget(MageState.BOOST_WORKERS, this::boostWorkers, TICKS_SECOND)
         );
         worker.setCanPickUpLoot(true);
     }
@@ -123,6 +164,17 @@ public class EntityAIWorkMysticalMage extends AbstractEntityAIInteract<JobMystic
 
     private IAIState meditate()
     {
+        if (boostCooldown > 0)
+        {
+            boostCooldown--;
+        }
+        else if (secondsWorked % AUTO_BOOST_CHECK_SECONDS == 0 && shouldBoostWorkers())
+        {
+            standUp();
+            boostTarget = null;
+            return MageState.BOOST_WORKERS;
+        }
+
         if (seat == null)
         {
             if (!walkToWorkPos(walkTarget) && walkSeconds < MAX_WALK_SECONDS)
@@ -162,6 +214,109 @@ public class EntityAIWorkMysticalMage extends AbstractEntityAIInteract<JobMystic
         }
 
         return getState();
+    }
+
+    /**
+     * @return true if the colony has more Minergy than the Library's auto boost threshold.
+     */
+    private boolean shouldBoostWorkers()
+    {
+        final IColony colony = building.getColony();
+        final int threshold = MinergyManager.getAutoBoostThreshold(colony);
+        return threshold > 0 && MinergyManager.getAmount(colony) >= threshold;
+    }
+
+    private void standUp()
+    {
+        if (worker.getVehicle() != null)
+        {
+            worker.stopRiding();
+        }
+        seat = null;
+    }
+
+    /**
+     * Walks to a worker, boosts it, then picks the next one while the Minergy stays above the threshold.
+     */
+    private IAIState boostWorkers()
+    {
+        if (!shouldBoostWorkers())
+        {
+            boostTarget = null;
+            return START_WORKING;
+        }
+
+        if (boostTarget == null || boostTarget.getEntity().isEmpty())
+        {
+            boostTarget = pickBoostTarget();
+            boostWalkSeconds = 0;
+            if (boostTarget == null)
+            {
+                // Everybody is boosted already: back to meditation for a while.
+                boostCooldown = NO_TARGET_COOLDOWN_SECONDS;
+                return START_WORKING;
+            }
+        }
+
+        final AbstractEntityCitizen target = boostTarget.getEntity().get();
+        if (!EntityNavigationUtils.walkToPos(worker, target.blockPosition(), BOOST_REACH, false)
+              && worker.distanceToSqr(target) > BOOST_REACH * BOOST_REACH)
+        {
+            if (++boostWalkSeconds > MAX_BOOST_WALK_SECONDS)
+            {
+                boostTarget = null;
+            }
+            return getState();
+        }
+
+        final IColony colony = building.getColony();
+        if (MinergyBoosts.buy(colony, boostTarget.getId(), MinergyManager.getAutoBoostSteps(colony)) == MinergyBoosts.Result.SUCCESS)
+        {
+            worker.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+            worker.getCitizenExperienceHandler().addExperience(XP_PER_SECOND * 20);
+            worker.queueSound(SoundEvents.ENCHANTMENT_TABLE_USE, target.blockPosition(), 20, 0, 0.8f, 1.5f);
+            if (world instanceof ServerLevel serverLevel)
+            {
+                serverLevel.sendParticles(ParticleTypes.ENCHANT, target.getX(), target.getY() + 1.2D, target.getZ(), 30, 0.5D, 0.6D, 0.5D, 0.8D);
+            }
+            if (worker.getRandom().nextInt(4) == 0)
+            {
+                worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(DIALOGUE_BOOST), ChatPriority.CHITCHAT));
+            }
+        }
+        boostTarget = null;
+        return getState();
+    }
+
+    /**
+     * @return a worker of the colony without an active boost, builders first, or null if none.
+     */
+    @Nullable
+    private ICitizenData pickBoostTarget()
+    {
+        final IColony colony = building.getColony();
+        final List<ICitizenData> builders = new ArrayList<>();
+        final List<ICitizenData> others = new ArrayList<>();
+        for (final ICitizenData citizen : colony.getCitizenManager().getCitizens())
+        {
+            if (citizen.getJob() == null
+                  || citizen.getJob() instanceof JobMysticalMage
+                  || citizen.getEntity().isEmpty()
+                  || MinergyBoosts.getBonus(colony, citizen.getId()) > 0)
+            {
+                continue;
+            }
+            if (citizen.getJob().getJobRegistryEntry().getKey().getPath().contains("builder"))
+            {
+                builders.add(citizen);
+            }
+            else
+            {
+                others.add(citizen);
+            }
+        }
+        final List<ICitizenData> pool = builders.isEmpty() ? others : builders;
+        return pool.isEmpty() ? null : pool.get(worker.getRandom().nextInt(pool.size()));
     }
 
     private void spawnParticles()

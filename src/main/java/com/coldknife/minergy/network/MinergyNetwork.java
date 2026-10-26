@@ -33,6 +33,17 @@ public final class MinergyNetwork
             MinergySyncMessage::decode,
             MinergySyncMessage::handle,
             Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(id++,
+            BuyBoostMessage.class,
+            BuyBoostMessage::encode,
+            BuyBoostMessage::decode,
+            BuyBoostMessage::handle,
+            Optional.of(NetworkDirection.PLAY_TO_SERVER));
+    }
+
+    public static void sendToServer(final Object message)
+    {
+        CHANNEL.sendToServer(message);
     }
 
     public static void sendTo(final ServerPlayer player, final Object message)

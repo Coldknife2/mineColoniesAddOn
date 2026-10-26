@@ -5,11 +5,14 @@
     "compatibilityLevel": "JAVA_17",
     "refmap": "minergy.refmap.json",
     "mixins": [
+        "AbstractEntityAIBasicMixin",
         "BlockPosUtilMixin",
         "BuildingResourcesModuleMixin",
         "BuildingStructureHandlerMixin"
     ],
-    "client": [],
+    "client": [
+        "client.AbstractWindowCitizenMixin"
+    ],
     "injectors": {
         "defaultRequire": 1
     }
