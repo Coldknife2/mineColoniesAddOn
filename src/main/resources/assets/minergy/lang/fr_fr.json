@@ -18,7 +18,7 @@
   "com.minergy.gui.info.mode.fallback": "Mode : secours (vrais blocs d'abord)",
   "com.minergy.gui.info.mode.first": "Mode : Minergie d'abord",
   "com.minergy.gui.info.nodata": "En attente du rapport du mage...",
-  "com.minergy.gui.info.help": "Le Mage mystique transforme sa concentration en Minergie pendant son travail. 1 Minergie permet à un bâtisseur de poser 1 bloc. Un bloc posé avec la Minergie ne droppe rien une fois cassé. Le meilleur Mystical Site de la colonie porte les réglages.",
+  "com.minergy.gui.info.help": "Le Mage mystique transforme sa concentration en Minergie pendant son travail. 1 Minergie permet à un bâtisseur de poser 1 bloc. Un bloc posé avec la Minergie ne droppe rien une fois cassé. La meilleure Bibliothèque de la colonie porte les réglages.",
 
   "com.minergy.hud.amount": "Minergie : %s",
   "com.minergy.hud.mode.fallback": "Construction : secours",

@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * The Mystical Mage works at the Mystical Site and generates Minergy for the colony.
+ * The Mystical Mage works at the Library and generates Minergy for the colony.
  */
 public class JobMysticalMage extends AbstractJob<EntityAIWorkMysticalMage, JobMysticalMage>
 {

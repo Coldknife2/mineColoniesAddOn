@@ -17,7 +17,7 @@ import com.minecolonies.core.colony.buildings.moduleviews.WorkerBuildingModuleVi
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Modules grafted onto the existing MineColonies Mystical Site.
+ * Modules grafted onto the existing MineColonies Library, which needs no research.
  */
 public final class MinergyBuildingModules
 {
@@ -56,12 +56,12 @@ public final class MinergyBuildingModules
     }
 
     /**
-     * Adds the add-on modules to the Mystical Site entry. Must run before any colony is loaded (common setup).
+     * Adds the add-on modules to the Library entry. Must run before any colony is loaded (common setup).
      * The module list of a {@link BuildingEntry} is mutable and the building registry allows modifications.
      */
-    public static void attachToMysticalSite()
+    public static void attachToLibrary()
     {
-        final BuildingEntry entry = ModBuildings.mysticalSite.get();
+        final BuildingEntry entry = ModBuildings.library.get();
         entry.getModuleProducers().add(INFO);
         entry.getModuleProducers().add(MAGE_WORK);
         entry.getModuleProducers().add(SETTINGS);
