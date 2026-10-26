@@ -10,6 +10,6 @@
         <text id="construction" size="156 11" pos="4 42" color="black"/>
         <text id="mode" size="156 11" pos="4 60" color="black"/>
     </box>
-    <text size="164 100" pos="13 124" color="black" wrap="true"
+    <text size="164 110" pos="13 124" color="black" wrap="true" textscale="0.8"
           label="$(com.minergy.gui.info.help)"/>
 </window>

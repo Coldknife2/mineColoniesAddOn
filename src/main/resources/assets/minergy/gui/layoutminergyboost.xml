@@ -1,0 +1,23 @@
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/ldtteam/BlockUI/version/1.20.1/src/main/resources/assets/blockui/gui/block_ui.xsd"
+    size="190 244">
+    <image source="minecolonies:textures/gui/builderhut/builder_paper.png" size="190 244"/>
+    <image source="minergy:textures/gui/minergy.png" size="16 16" pos="20 10"/>
+    <text size="130 11" pos="40 13" textalign="MIDDLE_LEFT" color="black" label="$(com.minergy.gui.boost.title)"/>
+
+    <button id="minus" size="16 16" pos="13 30" label="-"
+            source="minecolonies:textures/gui/builderhut/builder_button_very_small.png" color="black"/>
+    <text id="level" size="128 11" pos="31 33" textalign="MIDDLE" color="black"/>
+    <button id="plus" size="16 16" pos="161 30" label="+"
+            source="minecolonies:textures/gui/builderhut/builder_button_very_small.png" color="black"/>
+    <text id="cost" size="164 11" pos="13 50" textalign="MIDDLE" color="black"/>
+    <text id="balance" size="164 11" pos="13 62" textalign="MIDDLE" color="black"/>
+
+    <list id="citizens" size="164 150" pos="13 78">
+        <box size="100% 24" linewidth="1">
+            <text id="name" size="110 10" pos="3 2" color="white"/>
+            <text id="status" size="110 10" pos="3 12" color="white" textscale="0.8"/>
+            <button id="boost" size="40 16" pos="118 4" label="$(com.minergy.gui.boost.button)"
+                    source="minecolonies:textures/gui/builderhut/builder_button_very_small.png" color="black"/>
+        </box>
+    </list>
+</window>

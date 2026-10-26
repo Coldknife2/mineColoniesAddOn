@@ -18,6 +18,12 @@ public final class MinergyNetwork
     {
         final PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
         registrar.playToClient(MinergySyncMessage.TYPE, MinergySyncMessage.STREAM_CODEC, MinergySyncMessage::handle);
+        registrar.playToServer(BuyBoostMessage.TYPE, BuyBoostMessage.STREAM_CODEC, BuyBoostMessage::handle);
+    }
+
+    public static void sendToServer(final CustomPacketPayload message)
+    {
+        PacketDistributor.sendToServer(message);
     }
 
     public static void sendTo(final ServerPlayer player, final CustomPacketPayload message)
