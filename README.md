@@ -26,7 +26,7 @@ Add-on **NeoForge 1.21.1** (compatible **All the Mods 10**) pour [MineColonies](
   - *Travailleur* : recrutement du mage ;
   - *Réglages* : Minergie pour la construction et son mode, seuil et niveau du boost automatique du mage.
 
-  C'est la Bibliothèque de plus haut niveau qui porte les réglages de la colonie.
+  C'est la Bibliothèque de plus haut niveau qui porte les réglages de la colonie. Sans Bibliothèque, la Minergie de l'hôtel de ville sert déjà à construire, en mode Secours.
 - **Build mode (Structurize)** : la Minergie de la colonie s'affiche avec son icône en haut à gauche, quand le joueur tient le Build Tool ou que la fenêtre de placement est ouverte.
 
 ## Intégration technique
