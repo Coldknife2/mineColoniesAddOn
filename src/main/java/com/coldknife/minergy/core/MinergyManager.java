@@ -168,12 +168,13 @@ public final class MinergyManager
     }
 
     /**
-     * @return true if the colony's main Library allows Minergy for constructions.
+     * @return true if the colony's main Library allows Minergy for constructions (always true without a Library).
      */
     public static boolean isConstructionEnabled(final IColony colony)
     {
-        final IBuilding site = getMainLibrary(colony);
-        return site != null && site.getSettingValueOrDefault(MinergyBuildingModules.CONSTRUCTION, true);
+        // Without a Library, the town hall Minergy can already be used to build: the defaults apply.
+        final IBuilding library = getMainLibrary(colony);
+        return library == null || library.getSettingValueOrDefault(MinergyBuildingModules.CONSTRUCTION, true);
     }
 
     /**
